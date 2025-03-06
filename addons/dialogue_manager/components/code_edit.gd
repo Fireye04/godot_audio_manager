@@ -7,6 +7,8 @@ signal error_clicked(line_number: int)
 signal external_file_requested(path: String, title: String)
 
 
+const AUDIO_FILE_EXTENTIONS = ["mp3", "ogg", "wav"]
+
 # A link back to the owner `MainView`
 var main_view
 
@@ -106,9 +108,24 @@ func _gui_input(event: InputEvent) -> void:
 func _can_drop_data(at_position: Vector2, data) -> bool:
 	if typeof(data) != TYPE_DICTIONARY: return false
 	if data.type != "files": return false
-
+	
 	var files: PackedStringArray = Array(data.files)
-	return files.size() > 0
+	if files.size() <= 0: return false
+	
+	var audio = false
+	for file in files:
+		if file.get_extension() in AUDIO_FILE_EXTENTIONS:
+			audio = true
+			break
+			
+	if audio:
+		var linetext = get_line(get_line_column_at_pos(at_position).y)
+		if linetext.length() <= 0:
+			return false
+		if linetext.left(1) in ["~", "=", " "]:
+			return false
+	
+	return true
 
 
 func _drop_data(at_position: Vector2, data) -> void:
@@ -119,7 +136,9 @@ func _drop_data(at_position: Vector2, data) -> void:
 		# Don't import the file into itself
 		if file == main_view.current_file_path: continue
 
-		if file.get_extension() == "dialogue":
+		var extention = file.get_extension()
+
+		if extention == "dialogue":
 			var path = file.replace("res://", "").replace(".dialogue", "")
 			# Find the first non-import line in the file to add our import
 			var lines = text.split("\n")
@@ -128,6 +147,16 @@ func _drop_data(at_position: Vector2, data) -> void:
 					insert_line_at(i, "import \"%s\" as %s\n" % [file, replace_regex.sub(path, "_", true)])
 					set_caret_line(i)
 					break
+		elif extention in AUDIO_FILE_EXTENTIONS:
+			var cursor: Vector2 = get_line_column_at_pos(at_position)
+			if cursor.x > -1 and cursor.y > -1:
+				cursor.x = get_line(cursor.y).length()
+				set_cursor(cursor)
+				remove_secondary_carets()
+				if has_method("insert_text"):
+					call("insert_text", " <<\"%s\">>" % file, cursor.y, cursor.x)
+				else:
+					call("insert_text_at_cursor", " <<\"s\">>" % file)
 		else:
 			var cursor: Vector2 = get_line_column_at_pos(at_position)
 			if cursor.x > -1 and cursor.y > -1:
