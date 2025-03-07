@@ -127,3 +127,16 @@ There are a couple of special built-in mutations you can use:
 - `do debug(...)` - print something to the Output window.
 
 There is also a special property `self` that you can use in dialogue to refer to the `DialogueResource` that is currently being run.
+
+# Audio manager
+
+## Audio file linking
+
+To link an audio file with a line of dialogue, simply drag a .mp3, .ogg, or .wav file onto the line you wish it to link to in the dialogue manager text editor. 
+Alternatively, you can format the line as follows:
+
+```
+Fireye: Life is oddly meaningless <<"uid://putyourthinghere">>
+```
+
+The plugin is structured to use UIDs, however should theoretically totally work with file paths as well, assuming you edit the dialogue bubble accordingly. 

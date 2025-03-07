@@ -56,6 +56,9 @@ var mutation: Dictionary = {}
 ## The conditions to check before including this line in the flow of dialogue. If failed the line will be skipped over.
 var conditions: Dictionary = {}
 
+## Audio file UID
+var audio: String = ""
+
 
 func _init(data: Dictionary = {}) -> void:
 	if data.size() > 0:
@@ -77,6 +80,7 @@ func _init(data: Dictionary = {}) -> void:
 				time = data.get("time", "")
 				tags = data.get("tags", [])
 				concurrent_lines = data.get("concurrent_lines", [] as Array[DialogueLine])
+				audio = data.get("audio", "")
 
 			DMConstants.TYPE_MUTATION:
 				mutation = data.mutation
