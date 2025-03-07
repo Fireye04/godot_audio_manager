@@ -62,7 +62,6 @@ var audio: String = ""
 
 func _init(data: Dictionary = {}) -> void:
 	if data.size() > 0:
-		print(data)
 		id = data.id
 		next_id = data.next_id
 		type = data.type

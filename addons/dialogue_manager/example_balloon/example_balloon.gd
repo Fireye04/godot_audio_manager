@@ -116,7 +116,6 @@ func apply_dialogue_line() -> void:
 		await dialogue_label.finished_typing
 
 	if dialogue_line.audio != "":
-		print(dialogue_line.audio)
 		audio_player.stream = ResourceLoader.load(ResourceUID.get_id_path(ResourceUID.text_to_id(dialogue_line.audio)))
 		audio_player.play()
 
