@@ -128,7 +128,7 @@ func _can_drop_data(at_position: Vector2, data) -> bool:
 	return true
 
 
-func _drop_data(at_position: Vector2, data) -> void:
+func _drop_data(at_position: Vector2, data) -> void: 
 	var replace_regex: RegEx = RegEx.create_from_string("[^a-zA-Z_0-9]+")
 
 	var files: PackedStringArray = Array(data.files)
@@ -150,13 +150,19 @@ func _drop_data(at_position: Vector2, data) -> void:
 		elif extention in AUDIO_FILE_EXTENTIONS:
 			var cursor: Vector2 = get_line_column_at_pos(at_position)
 			if cursor.x > -1 and cursor.y > -1:
-				cursor.x = get_line(cursor.y).length()
+				var uid = ResourceUID.id_to_text(ResourceLoader.get_resource_uid(file))
+				var line = get_line(cursor.y)
+				var arrow_ind = line.find("=>")
+				if arrow_ind == -1:
+					cursor.x = line.length()
+				else:
+					cursor.x = arrow_ind -1
 				set_cursor(cursor)
 				remove_secondary_carets()
 				if has_method("insert_text"):
-					call("insert_text", " <<\"%s\">>" % file, cursor.y, cursor.x)
+					call("insert_text", " <<\"%s\">>" % uid, cursor.y, cursor.x)
 				else:
-					call("insert_text_at_cursor", " <<\"s\">>" % file)
+					call("insert_text_at_cursor", " <<\"s\">>" % uid)
 		else:
 			var cursor: Vector2 = get_line_column_at_pos(at_position)
 			if cursor.x > -1 and cursor.y > -1:
