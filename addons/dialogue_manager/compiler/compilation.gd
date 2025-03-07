@@ -758,18 +758,22 @@ func parse_character_and_dialogue(tree_line: DMTreeLine, line: DMCompiledLine, s
 	text = tag_data.text_without_tags
 
 	# Check for audio files
-	var audio_list = text.split("<<")
-	if audio_list.size() > 1:
-		var audio_uid = ""
-		for i in range(1, audio_list.size()):
-			var audio_end = audio_list[i].split(">>")
-			if audio_end.size() <= 1:
-				result = add_error(tree_line.line_number, tree_line.indent, DMConstants.ERR_MISSING_CLOSING_BRACKET)
-				break
-			if audio_uid == "":
-				audio_uid = audio_end[0].replace("\"", "")
-			text = text.replace("<<" + audio_end[0] + ">>", "")
-		line.audio = audio_uid
+	text = text.replace("\\<<", "!ESCAPED_ANGLED!")
+	if "<<" in text:
+		var audio_list = text.split("<<")
+		if audio_list.size() > 1:
+			var audio_uid = ""
+			for i in range(1, audio_list.size()):
+				var audio_end = audio_list[i].split(">>")
+				if audio_end.size() <= 1:
+					result = add_error(tree_line.line_number, tree_line.indent, DMConstants.ERR_MISSING_CLOSING_BRACKET)
+					break
+				if audio_uid == "":
+					audio_uid = audio_end[0].replace("\"", "")
+				text = text.replace("<<" + audio_end[0] + ">>", "")
+			line.audio = audio_uid
+	else:
+		text = text.replace("!ESCAPED_ANGLED!", "<<")
 
 
 	# Handle inline gotos and remove them from the prompt text.

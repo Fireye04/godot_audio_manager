@@ -447,3 +447,11 @@ Nathan: That should not be null.
 
 	await resource.get_next_dialogue_line("start", [extra_state])
 	assert(extra_state.what_is_self == resource, "Self should be the given DialogueResource.")
+
+func test_processes_audio_file() -> void:
+	var resource = create_resource("
+~ start
+Fireye: Heya, I hope your day is going well <<\"uid://workplease\">> 
+=> END")
+	var line = await resource.get_next_dialogue_line("start")
+	assert(line.audio == "uid://workplease", "line audio file should be \"uid://workplease\"")
