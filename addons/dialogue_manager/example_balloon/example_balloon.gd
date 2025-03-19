@@ -7,8 +7,6 @@ class_name DialogueManagerExampleBalloon extends CanvasLayer
 ## The action to use to skip typing the dialogue
 @export var skip_action: StringName = &"ui_cancel"
 
-@onready var audio_player: AudioStreamPlayer = %Player
-
 ## The dialogue resource
 var resource: DialogueResource
 
@@ -114,10 +112,6 @@ func apply_dialogue_line() -> void:
 	if not dialogue_line.text.is_empty():
 		dialogue_label.type_out()
 		await dialogue_label.finished_typing
-
-	if dialogue_line.audio != "":
-		audio_player.stream = ResourceLoader.load(ResourceUID.get_id_path(ResourceUID.text_to_id(dialogue_line.audio)))
-		audio_player.play()
 
 	# Wait for input
 	if dialogue_line.responses.size() > 0:

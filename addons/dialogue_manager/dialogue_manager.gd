@@ -573,8 +573,7 @@ func create_dialogue_line(data: Dictionary, extra_game_states: Array) -> Dialogu
 				inline_mutations = resolved_data.mutations,
 				time = resolved_data.time,
 				tags = data.get(&"tags", []),
-				extra_game_states = extra_game_states,
-				audio = data.get(&"audio", "")
+				extra_game_states = extra_game_states
 			})
 
 		DMConstants.TYPE_RESPONSE:
@@ -583,8 +582,7 @@ func create_dialogue_line(data: Dictionary, extra_game_states: Array) -> Dialogu
 				type = DMConstants.TYPE_RESPONSE,
 				next_id = data.next_id,
 				tags = data.get(&"tags", []),
-				extra_game_states = extra_game_states,
-				audio = data.get(&"audio", "")
+				extra_game_states = extra_game_states
 			})
 
 		DMConstants.TYPE_MUTATION:
@@ -612,8 +610,7 @@ func create_response(data: Dictionary, extra_game_states: Array) -> DialogueResp
 		text = resolved_data.text,
 		text_replacements = data.get(&"text_replacements", [] as Array[Dictionary]),
 		tags = data.get(&"tags", []),
-		translation_key = data.get(&"translation_key", data.text),
-		audio = data.get(&"audio", "")
+		translation_key = data.get(&"translation_key", data.text)
 	})
 
 

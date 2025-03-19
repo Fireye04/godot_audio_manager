@@ -38,8 +38,7 @@ var next_sibling_id: String = ""
 var next_id_after: String = ""
 ## Any doc comments attached to this line.
 var notes: String = ""
-## Audio file UID
-var audio: String = ""
+
 
 #region Hooks
 
@@ -130,8 +129,6 @@ func to_data() -> Dictionary:
 				d.tags = tags
 			if not notes.is_empty():
 				d.notes = notes
-			if not audio.is_empty():
-				d.audio = audio
 
 		DMConstants.TYPE_DIALOGUE:
 			d.text = text
@@ -153,8 +150,6 @@ func to_data() -> Dictionary:
 				d.siblings = siblings
 			if not concurrent_lines.is_empty():
 				d.concurrent_lines = concurrent_lines
-			if not audio.is_empty():
-				d.audio = audio
 
 	return d
 

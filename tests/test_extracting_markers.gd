@@ -70,24 +70,3 @@ func test_can_resolve_inline_conditions() -> void:
 func test_can_handle_escaped_brackets() -> void:
 	var data = await _resolve("Nathan: This[wait=1] is a \\[[color=lime]special[/color]\\] thing")
 	assert(data.text == "This is a [[color=lime]special[/color]] thing")
-
-func test_can_handle_escaped_angled() -> void:
-	var data = await _resolve("Fireye: *Screaming* \\<<\"uid://sike\">>")
-	assert(data.text == "*Screaming* <<\"uid://sike\">>")
-
-func test_missing_closing_angled() -> void:
-	var output = compile("~ start
-Fireye: Aw dang it <<\"uid://FAILURE\" 
-=> END")
-	var errors = []
-	for instance in output.errors:
-		errors.append(instance.error)
-	assert(DMConstants.ERR_MISSING_CLOSING_BRACKET in errors, "Should throw ERR_MISSING_CLOSING_BRACKET")
-
-	output = compile("~ start
-Fireye: Wazzahhhhhhhh <<\"uid://Sneaky!\">> <<\"uid://FAILURE\" <<\"uid://sneaky\">>
-=> END")
-	errors = []
-	for instance in output.errors:
-		errors.append(instance.error)
-	assert(DMConstants.ERR_MISSING_CLOSING_BRACKET in errors, "Should throw ERR_MISSING_CLOSING_BRACKET")

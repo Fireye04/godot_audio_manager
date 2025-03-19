@@ -31,8 +31,6 @@ func test_get_line_type() -> void:
 	assert(compilation.get_line_type("- prompt [if condition]") == DMConstants.TYPE_RESPONSE, "Response should be response.")
 	assert(compilation.get_line_type("- prompt [if condition] => title") == DMConstants.TYPE_RESPONSE, "Response should be response.")
 	assert(compilation.get_line_type("- prompt => title") == DMConstants.TYPE_RESPONSE, "Response should be response.")
-	assert(compilation.get_line_type("- prompt <<\"uid://test123\">>") == DMConstants.TYPE_RESPONSE, "Response should be response.")
-	assert(compilation.get_line_type("- prompt <<\"uid://test123\">> => title") == DMConstants.TYPE_RESPONSE, "Response should be response.")
 
 	assert(compilation.get_line_type("%") == DMConstants.TYPE_RANDOM, "Random block should be random.")
 	assert(compilation.get_line_type("%3") == DMConstants.TYPE_RANDOM, "Random block should be random.")
@@ -41,8 +39,6 @@ func test_get_line_type() -> void:
 	assert(compilation.get_line_type("Dialogue") == DMConstants.TYPE_DIALOGUE, "Dialogue should be dialogue.")
 	assert(compilation.get_line_type("Character: Dialogue") == DMConstants.TYPE_DIALOGUE, "Dialogue should be dialogue.")
 	assert(compilation.get_line_type("Character: Dialogue => title") == DMConstants.TYPE_DIALOGUE, "Dialogue should be dialogue.")
-	assert(compilation.get_line_type("Character: Dialogue <<\"uid://test123\">>") == DMConstants.TYPE_DIALOGUE, "Dialogue should be dialogue.")
-	assert(compilation.get_line_type("Character: Dialogue <<\"uid://test123\">> => title") == DMConstants.TYPE_DIALOGUE, "Dialogue should be dialogue.")
 	assert(compilation.get_line_type("% Character: Dialogue") == DMConstants.TYPE_DIALOGUE, "Dialogue should be dialogue.")
 	assert(compilation.get_line_type("%4 Character: Dialogue") == DMConstants.TYPE_DIALOGUE, "Dialogue should be dialogue.")
 

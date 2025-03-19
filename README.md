@@ -1,11 +1,3 @@
-# Godot Audio Manager
-
-This repo is a fork of Nathan Hoad's [Godot Dialogue Manager](https://github.com/nathanhoad/godot_dialogue_manager) that intends to improve the plugin's audio pipeline. 
-
-At the moment, for a developer to add audio to lines of diaogue to a Godot Dialogue Manager (GDM) project, each line needs to be uniquely tagged, then it is left up to the developer to cross-reference tags with their respective audio clips. Godot Audio Manager intends to improve the process therein by augmenting the tool to allow line-by-line audio file drag & drop. This allows audio resources to be passed into the tool's compiler, and returned along with their respective lines of dialogue so they can be played by the balloon. 
-
-Otherwise, this plugin should function identically to its upstream counterpart, whose readme remains below in its entirity. 
-
 <img src="docs/media/logo.svg" width="128" height="128">
 
 # Dialogue Manager _for Godot 4.4+_

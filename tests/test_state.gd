@@ -476,11 +476,3 @@ else:
 	StateForTests.something_null = "value is not null"
 	line = await resource.get_next_dialogue_line("start")
 	assert(line.text == "Should not be here.", "Should now pass condition.")
-
-func test_processes_audio_file() -> void:
-	var resource = create_resource("
-~ start
-Fireye: Heya, I hope your day is going well <<\"uid://workplease\">> 
-=> END")
-	var line = await resource.get_next_dialogue_line("start")
-	assert(line.audio == "uid://workplease", "line audio file should be \"uid://workplease\"")
