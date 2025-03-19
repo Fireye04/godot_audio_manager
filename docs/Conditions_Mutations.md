@@ -112,6 +112,17 @@ For example, if `SomeGlobal` has a signal called `some_signal` that has a single
 do SomeGlobal.some_signal.emit("some argument")
 ```
 
+### Null coalescing
+
+In some cases you might want to refer to properties of an object that may or may not be defined. This is where you can make use of null coalescing:
+
+```
+if some_node_reference?.name == "SomeNode"
+    Nathan: Notice the "?." syntax?
+```
+
+If `some_node_reference` is null then the whole left side of the comparison will be null and, therefore, not be equal to "SomeNode" and fail. If the null coalescing isn't used here and `some_node_reference` is null then the game will crash.
+
 ### State shortcuts
 
 If you want to shorten your references to state from something like `SomeGlobal.some_property` to just `some_property`, there are two ways you can do this.
@@ -132,11 +143,11 @@ There is also a special property `self` that you can use in dialogue to refer to
 
 ## Audio file linking
 
-To link an audio file with a line of dialogue, simply drag a .mp3, .ogg, or .wav file onto the line you wish it to link to in the dialogue manager text editor. 
+To link an audio file with a line of dialogue, simply drag a .mp3, .ogg, or .wav file onto the line you wish it to link to in the dialogue manager text editor.
 Alternatively, you can format the line as follows:
 
 ```
 Fireye: Life is oddly meaningless <<"uid://putyourthinghere">>
 ```
 
-The plugin is structured to use UIDs, however should theoretically totally work with file paths as well, assuming you edit the dialogue bubble accordingly. 
+The plugin is structured to use UIDs, however should theoretically totally work with file paths as well, assuming you edit the dialogue bubble accordingly.
