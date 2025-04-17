@@ -14,6 +14,9 @@ var next_id: String = ""
 ## [code]true[/code] if the condition of this line was met.
 var is_allowed: bool = true
 
+## [code]true[/code] if the condition of this line was met.
+var condition: String = ""
+
 ## A character (depending on the "characters in responses" behaviour setting).
 var character: String = ""
 
@@ -32,6 +35,9 @@ var tags: PackedStringArray = []
 ## The key to use for translating the text.
 var translation_key: String = ""
 
+## Force hides result regardless of bubble settings. Response will still exist, but not be visible.
+var hidden: bool = false;
+
 
 func _init(data: Dictionary = {}) -> void:
 	if data.size() > 0:
@@ -39,17 +45,23 @@ func _init(data: Dictionary = {}) -> void:
 		type = data.type
 		next_id = data.next_id
 		is_allowed = data.is_allowed
+		condition = data.condition
 		character = data.character
 		character_replacements = data.character_replacements
 		text = data.text
 		text_replacements = data.text_replacements
-		tags = data.tags
+		tags = _special_tags(data.tags)
 		translation_key = data.translation_key
 
 
 func _to_string() -> String:
 	return "<DialogueResponse text=\"%s\">" % text
 
+func _special_tags(arr: PackedStringArray)->PackedStringArray:
+	if arr.has("hidden"):
+		arr.remove_at(arr.find("hidden"))
+		hidden = true
+	return arr
 
 func get_tag_value(tag_name: String) -> String:
 	var wrapped := "%s=" % tag_name

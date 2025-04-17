@@ -607,6 +607,7 @@ func create_response(data: Dictionary, extra_game_states: Array) -> DialogueResp
 		type = DMConstants.TYPE_RESPONSE,
 		next_id = data.next_id,
 		is_allowed = data.is_allowed,
+		condition = _resolve_condition_string(data),
 		character = await get_resolved_character(data, extra_game_states),
 		character_replacements = data.get(&"character_replacements", [] as Array[Dictionary]),
 		text = resolved_data.text,
@@ -656,6 +657,14 @@ func _resolve_condition_value(data: Dictionary, extra_game_states: Array) -> Var
 
 	return await _resolve(data.condition.expression.duplicate(true), extra_game_states)
 
+func _resolve_condition_string(data: Dictionary)-> String:
+	if data.get(&"condition", null) == null: return ""
+	if data.condition.is_empty(): return ""
+		
+	var cond_str: PackedStringArray
+	for item in data.condition.expression.duplicate(true):
+		cond_str.append(str(item.value))
+	return " ".join(cond_str) 
 
 # Check if a match value matches a case value
 func _check_case_value(match_value: Variant, data: Dictionary, extra_game_states: Array) -> bool:
