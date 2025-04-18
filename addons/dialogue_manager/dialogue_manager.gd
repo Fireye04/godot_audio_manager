@@ -206,16 +206,6 @@ func get_line(resource: DialogueResource, key: String, extra_game_states: Array)
 			else:
 				cummulative_weight += sibling.weight
 
-	# Find any simultaneously said lines.
-	var concurrent_lines: Array[DialogueLine] = []
-	if data.has(&"concurrent_lines"):
-		# If the list includes this line then it isn't the origin line so ignore it.
-		if not data.concurrent_lines.has(data.id):
-			for concurrent_id: String in data.concurrent_lines:
-				var concurrent_line: DialogueLine = await get_line(resource, concurrent_id, extra_game_states)
-				if concurrent_line:
-					concurrent_lines.append(concurrent_line)
-
 	# If this line is blank and it's the last line then check for returning snippets.
 	if data.type in [DMConstants.TYPE_COMMENT, DMConstants.TYPE_UNKNOWN]:
 		if data.next_id in [DMConstants.ID_END, DMConstants.ID_NULL, null]:
@@ -252,10 +242,17 @@ func get_line(resource: DialogueResource, key: String, extra_game_states: Array)
 
 	# Set up a line object.
 	var line: DialogueLine = await create_dialogue_line(data, extra_game_states)
-	line.concurrent_lines = concurrent_lines
 
 	# If the jump point somehow has no content then just end.
 	if not line: return null
+
+	# Find any simultaneously said lines.
+	if data.has(&"concurrent_lines"):
+		# If the list includes this line then it isn't the origin line so ignore it.
+		if not data.concurrent_lines.has(data.id):
+			# Resolve IDs to their actual lines.
+			for line_id: String in data.concurrent_lines:
+				line.concurrent_lines.append(await get_line(resource, line_id, extra_game_states))
 
 	# If we are the first of a list of responses then get the other ones.
 	if data.type == DMConstants.TYPE_RESPONSE:
@@ -442,6 +439,18 @@ func show_dialogue_balloon_scene(balloon_scene, resource: DialogueResource, titl
 	return balloon
 
 
+## Resolve a static line ID to an actual line ID
+func static_id_to_line_id(resource: DialogueResource, static_id: String) -> String:
+	var ids = static_id_to_line_ids(resource, static_id)
+	if ids.size() == 0: return ""
+	return ids[0]
+
+
+## Resolve a static line ID to any actual line IDs that match
+func static_id_to_line_ids(resource: DialogueResource, static_id: String) -> PackedStringArray:
+	return resource.lines.values().filter(func(l): return l.get(&"translation_key", "") == static_id).map(func(l): return l.id)
+
+
 # Call "start" on the given balloon.
 func _start_balloon(balloon: Node, resource: DialogueResource, title: String, extra_game_states: Array) -> void:
 	get_current_scene.call().add_child(balloon)
@@ -524,7 +533,7 @@ func show_error_for_missing_state_value(message: String, will_show: bool = true)
 
 # Translate a string
 func translate(data: Dictionary) -> String:
-	if translation_source == DMConstants.TranslationSource.None:
+	if TranslationServer.get_loaded_locales().size() == 0 or translation_source == DMConstants.TranslationSource.None:
 		return data.text
 
 	var translation_key: String = data.get(&"translation_key", data.text)
@@ -1370,7 +1379,7 @@ func _thing_has_method(thing, method: String, args: Array) -> bool:
 	if thing.has_method(method):
 		return true
 
-	if method.to_snake_case() != method and DMSettings.check_for_dotnet_solution():
+	if thing.get_script() and thing.get_script().resource_path.ends_with(".cs"):
 		# If we get this far then the method might be a C# method with a Task return type
 		return _get_dotnet_dialogue_manager().ThingHasMethod(thing, method, args)
 
