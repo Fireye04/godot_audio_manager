@@ -164,7 +164,7 @@ func get_line(resource: DialogueResource, key: String, extra_game_states: Array)
 	if not resource.lines.has(key):
 		assert(false, DMConstants.translate(&"errors.key_not_found").format({ key = key }))
 
-	var data: Dictionary = resource.lines.get(key).duplicate(true)
+	var data: Dictionary = resource.lines.get(key)
 
 	# If next_id is an expression we need to resolve it.
 	if data.has(&"next_id_expression"):
@@ -206,15 +206,6 @@ func get_line(resource: DialogueResource, key: String, extra_game_states: Array)
 			else:
 				cummulative_weight += sibling.weight
 
-	# Find any simultaneously said lines.
-	if data.has(&"concurrent_lines"):
-		# If the list includes this line then it isn't the origin line so ignore it.
-		if not data.concurrent_lines.has(data.id):
-			# Resolve IDs to their actual lines.
-			data.concurrent_lines = data.concurrent_lines.map(func(line_id):
-				return await get_line(resource, line_id, extra_game_states)
-			)
-
 	# If this line is blank and it's the last line then check for returning snippets.
 	if data.type in [DMConstants.TYPE_COMMENT, DMConstants.TYPE_UNKNOWN]:
 		if data.next_id in [DMConstants.ID_END, DMConstants.ID_NULL, null]:
@@ -254,6 +245,14 @@ func get_line(resource: DialogueResource, key: String, extra_game_states: Array)
 
 	# If the jump point somehow has no content then just end.
 	if not line: return null
+
+	# Find any simultaneously said lines.
+	if data.has(&"concurrent_lines"):
+		# If the list includes this line then it isn't the origin line so ignore it.
+		if not data.concurrent_lines.has(data.id):
+			# Resolve IDs to their actual lines.
+			for line_id: String in data.concurrent_lines:
+				line.concurrent_lines.append(await get_line(resource, line_id, extra_game_states))
 
 	# If we are the first of a list of responses then get the other ones.
 	if data.type == DMConstants.TYPE_RESPONSE:
@@ -440,6 +439,18 @@ func show_dialogue_balloon_scene(balloon_scene, resource: DialogueResource, titl
 	return balloon
 
 
+## Resolve a static line ID to an actual line ID
+func static_id_to_line_id(resource: DialogueResource, static_id: String) -> String:
+	var ids = static_id_to_line_ids(resource, static_id)
+	if ids.size() == 0: return ""
+	return ids[0]
+
+
+## Resolve a static line ID to any actual line IDs that match
+func static_id_to_line_ids(resource: DialogueResource, static_id: String) -> PackedStringArray:
+	return resource.lines.values().filter(func(l): return l.get(&"translation_key", "") == static_id).map(func(l): return l.id)
+
+
 # Call "start" on the given balloon.
 func _start_balloon(balloon: Node, resource: DialogueResource, title: String, extra_game_states: Array) -> void:
 	get_current_scene.call().add_child(balloon)
@@ -522,7 +533,7 @@ func show_error_for_missing_state_value(message: String, will_show: bool = true)
 
 # Translate a string
 func translate(data: Dictionary) -> String:
-	if translation_source == DMConstants.TranslationSource.None:
+	if TranslationServer.get_loaded_locales().size() == 0 or translation_source == DMConstants.TranslationSource.None:
 		return data.text
 
 	var translation_key: String = data.get(&"translation_key", data.text)
