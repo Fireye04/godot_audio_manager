@@ -184,8 +184,8 @@ Before
 match StateForTests.some_property + 1
 	when 0
 		It's zero.
-	when 1 + 1
-		It's two.
+	when 1 + 1, 3
+		It's two or three.
 	when 42
 		It's 42.
 	else
@@ -197,7 +197,7 @@ After")
 	assert(line.text == "Before", "Should be before match.")
 
 	line = await resource.get_next_dialogue_line(line.next_id)
-	assert(line.text == "It's two.", "Should match two case.")
+	assert(line.text == "It's two or three.", "Should match two case.")
 
 	line = await resource.get_next_dialogue_line(line.next_id)
 	assert(line.text == "After", "Should be after match.")
@@ -484,3 +484,44 @@ Fireye: Heya, I hope your day is going well <<\"uid://workplease\">>
 => END")
 	var line = await resource.get_next_dialogue_line("start")
 	assert(line.audio == "uid://workplease", "line audio file should be \"uid://workplease\"")
+
+func test_csharp_state() -> void:
+	var resource = create_resource("
+using CSharpState
+
+~ start
+if SomeValue < SOME_CONSTANT:
+	Here first.
+	set SomeValue = SOME_CONSTANT + 1
+	=> start
+else:
+	Then here.
+=> END")
+
+	var line = await resource.get_next_dialogue_line("start")
+	assert(line.text == "Here first.", "Should be less than constant value first.")
+
+	line = await resource.get_next_dialogue_line(line.next_id)
+	assert(line.text == "Then here.", "Should now be greater than constant value.")
+
+
+func test_csharp_mutation() -> void:
+	var resource = create_resource("
+using CSharpState
+
+~ start
+#Nathan: Hello.
+#set SomeValue = GetAsyncValue()
+#Nathan: Value is {{SomeValue}}.
+do LongMutation()
+Nathan: Done!
+=> END")
+
+	var line = await resource.get_next_dialogue_line("start")
+	#assert(line.text == "Hello.", "Should be first line.")
+#
+	#line = await resource.get_next_dialogue_line(line.next_id)
+	#assert(line.text == "Value is 100.", "Should have new value.")
+#
+	#line = await resource.get_next_dialogue_line(line.next_id)
+	assert(line.text == "Done!", "Should finish.")
