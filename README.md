@@ -34,8 +34,10 @@ You can install it via the Asset Library or [downloading a copy](https://github.
 ## Example Projects
 
 [![Example project featuring portraits & emotes/tags](docs/media/example-portraits.png)](https://nathanhoad.itch.io/godot-dialogue-example-project-portraits)
+[![Example project for visual novel](docs/media/example-visual-novel.png)](https://nathanhoad.itch.io/godot-dialogue-example-project-visual-novel)
 [![Example project featuring voices & translations](docs/media/example-voices-translations.png)](https://nathanhoad.itch.io/voices-translations-godot-dialogue-example-project)
-[![Example project endless scroll & text input](docs/media/example-endless-scroll.png)](https://nathanhoad.itch.io/endless-scroll-text-input-godot-dialogue-example-project)
+[![Example project featuring speech balloons](docs/media/example-speech-balloons.png)](https://nathanhoad.itch.io/speech-balloons-godot-dialogue-example-project)
+[![Example project featuring endless scroll & text input](docs/media/example-endless-scroll.png)](https://nathanhoad.itch.io/endless-scroll-text-input-godot-dialogue-example-project)
 
 ## Wishlist my game
 
@@ -45,8 +47,7 @@ You can install it via the Asset Library or [downloading a copy](https://github.
 
 [![Dialogue in Godot 4](docs/media/dialogue-in-godot.png)](https://youtu.be/UhPFk8FSbd8)
 [![Making cut-scenes](docs/media/cutscenes.png)](https://youtu.be/G_TN8jz4v9o)
-[![Cool balloons in Godot 4: Part 1](docs/media/make-balloons.png)](https://youtu.be/X0e-n7dbff8)
-[![Cool balloons in Godot 4: Part 2](docs/media/make-balloons-2.png)](https://youtu.be/DfdcyHwqXdo)
+[![Making dialogue balloons](docs/media/video-examples.png)](https://youtu.be/Rd4bZEX2RCg)
 
 ## Older versions of Dialogue Manager
 

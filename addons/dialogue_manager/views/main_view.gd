@@ -112,6 +112,9 @@ var current_file_path: String = "":
 
 			errors_panel.errors = []
 			code_edit.errors = []
+
+			if search_and_replace.visible:
+				search_and_replace.search()
 	get:
 		return current_file_path
 
@@ -499,8 +502,8 @@ func show_build_error_dialog() -> void:
 
 # Generate translation line IDs for any line that doesn't already have one
 func generate_translations_keys() -> void:
-	randomize()
-	seed(Time.get_unix_time_from_system())
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.randomize()
 
 	var cursor: Vector2 = code_edit.get_cursor()
 	var lines: PackedStringArray = code_edit.text.split("\n")
@@ -554,9 +557,9 @@ func generate_translations_keys() -> void:
 				key = key.substr(0, key.length() - 1)
 
 			# Make sure key is unique
-			var hashed_key: String = key + "_" + str(randi() % 1000000).sha1_text().substr(0, 6)
+			var hashed_key: String = key + "_" + str(rng.randi() % 1000000).sha1_text().substr(0, 6)
 			while hashed_key in known_keys and text != known_keys.get(hashed_key):
-				hashed_key = key + "_" + str(randi() % 1000000).sha1_text().substr(0, 6)
+				hashed_key = key + "_" + str(rng.randi() % 1000000).sha1_text().substr(0, 6)
 			key = hashed_key.to_upper()
 
 		line = line.replace("\\n", "!NEWLINE!")
@@ -808,6 +811,16 @@ func show_search_form(is_enabled: bool) -> void:
 	search_and_replace.focus_line_edit()
 
 
+func run_test_scene(from_key: String) -> void:
+	DMSettings.set_user_value("run_title", from_key)
+	DMSettings.set_user_value("is_running_test_scene", true)
+	DMSettings.set_user_value("run_resource_path", current_file_path)
+	var test_scene_path: String = DMSettings.get_setting(DMSettings.CUSTOM_TEST_SCENE_PATH, "res://addons/dialogue_manager/test_scene.tscn")
+	if ResourceUID.has_id(ResourceUID.text_to_id(test_scene_path)):
+		test_scene_path = ResourceUID.get_id_path(ResourceUID.text_to_id(test_scene_path))
+	EditorInterface.play_custom_scene(test_scene_path)
+
+
 ### Signals
 
 
@@ -1046,11 +1059,7 @@ func _on_test_button_pressed() -> void:
 		errors_dialog.popup_centered()
 		return
 
-	DMSettings.set_user_value("run_title", "")
-	DMSettings.set_user_value("is_running_test_scene", true)
-	DMSettings.set_user_value("run_resource_path", current_file_path)
-	var test_scene_path: String = DMSettings.get_setting(DMSettings.CUSTOM_TEST_SCENE_PATH, "res://addons/dialogue_manager/test_scene.tscn")
-	EditorInterface.play_custom_scene(test_scene_path)
+	run_test_scene("")
 
 
 func _on_test_line_button_pressed() -> void:
@@ -1065,12 +1074,9 @@ func _on_test_line_button_pressed() -> void:
 	for i in range(code_edit.get_cursor().y, code_edit.get_line_count()):
 		if not code_edit.get_line(i).is_empty():
 			line_to_run = i
-			break;
-	DMSettings.set_user_value("run_title", str(line_to_run))
-	DMSettings.set_user_value("is_running_test_scene", true)
-	DMSettings.set_user_value("run_resource_path", current_file_path)
-	var test_scene_path: String = DMSettings.get_setting(DMSettings.CUSTOM_TEST_SCENE_PATH, "res://addons/dialogue_manager/test_scene.tscn")
-	EditorInterface.play_custom_scene(test_scene_path)
+			break
+
+	run_test_scene(str(line_to_run))
 
 
 func _on_support_button_pressed() -> void:
