@@ -56,6 +56,9 @@ var responses: Array = []:
 
 				item.set_meta("response", response)
 
+				if response.hidden:
+					item.hide()
+
 				add_child(item)
 
 			_configure_focus()
