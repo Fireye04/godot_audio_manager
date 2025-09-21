@@ -135,7 +135,7 @@ func test_can_run_while_loops() -> void:
 Before
 while StateForTests.some_property < 2
 	Value is {{StateForTests.some_property}}
-	set StateForTests.some_property += 1
+	$> StateForTests.some_property += 1
 After")
 
 	StateForTests.some_property = 0
@@ -230,6 +230,22 @@ After")
 	resource = create_resource("
 ~ start
 Before
+match StateForTests.some_property
+	when < 2
+		Less than 2.
+	when 2
+		Exactly 2.
+After")
+
+	StateForTests.some_property = 2
+	line = await resource.get_next_dialogue_line("start")
+	assert(line.text == "Before", "Should be before match.")
+	line = await resource.get_next_dialogue_line(line.next_id)
+	assert(line.text == "Exactly 2.", "Should match comparison.")
+
+	resource = create_resource("
+~ start
+Before
 match StateForTests.some_property + 1
 	when 0
 		It's zero.
@@ -249,8 +265,8 @@ After")
 
 func test_can_parse_mutations() -> void:
 	var output = compile("
-set StateForTests.some_property = StateForTests.some_method(-10, \"something\")
-do long_mutation()")
+$> StateForTests.some_property = StateForTests.some_method(-10, \"something\")
+$> long_mutation()")
 
 	assert(output.errors.is_empty(), "Should have no errors.")
 
@@ -264,12 +280,12 @@ do long_mutation()")
 func test_can_run_mutations() -> void:
 	var resource = create_resource("
 ~ start
-set StateForTests.some_property = StateForTests.some_method(-10, \"something\")
-set StateForTests.some_property += 5-10
-set StateForTests.some_property *= 2
-set StateForTests.some_property /= 2
+$> StateForTests.some_property = StateForTests.some_method(-10, \"something\")
+$> StateForTests.some_property += 5-10
+$> StateForTests.some_property *= 2
+$> StateForTests.some_property /= 2
 Nathan: Pause the test.
-do StateForTests.long_mutation()
+$> StateForTests.long_mutation()
 Nathan: Done.")
 
 	StateForTests.some_property = 0
@@ -287,7 +303,7 @@ func test_can_run_non_blocking_mutations() -> void:
 	var resource = create_resource("
 ~ start
 Nathan: This mutation should not wait.
-do! StateForTests.long_mutation()
+$>> StateForTests.long_mutation()
 Nathan: Done.")
 
 	var line = await resource.get_next_dialogue_line("start")
@@ -301,8 +317,8 @@ Nathan: Done.")
 func test_can_run_non_blocking_inline_mutations() -> void:
 	var resource = create_resource("
 ~ start
-Nathan: This mutation [do StateForTests.long_mutation()]should wait.
-Nathan: This one [do! StateForTests.long_mutation()] won't.")
+Nathan: This mutation [$> StateForTests.long_mutation()]should wait.
+Nathan: This one [$>> StateForTests.long_mutation()]won't.")
 
 	var line = await resource.get_next_dialogue_line("start")
 	dialogue_label.dialogue_line = line
@@ -310,6 +326,7 @@ Nathan: This one [do! StateForTests.long_mutation()] won't.")
 	dialogue_label.type_out()
 	await dialogue_label.finished_typing
 	var duration: float = Time.get_unix_time_from_system() - started_at
+	assert(line.text == "This mutation should wait.", "Should match text.")
 	assert(duration >= 0.6, "Mutation should take some time.")
 
 	line = await resource.get_next_dialogue_line(line.next_id)
@@ -318,7 +335,8 @@ Nathan: This one [do! StateForTests.long_mutation()] won't.")
 	dialogue_label.type_out()
 	await dialogue_label.finished_typing
 	duration = Time.get_unix_time_from_system() - started_at
-	assert(duration <= 0.3, "Mutation should not take any time.")
+	assert(line.text == "This one won't.", "Should match text.")
+	assert(duration <= 0.4, "Mutation should not take any time.")
 
 
 func test_can_run_mutations_with_typed_arrays() -> void:
@@ -333,7 +351,7 @@ Nathan: {{StateForTests.typed_array_method([-1, 27], [\"something\"], [{ \"key\"
 func test_can_run_expressions() -> void:
 	var resource = create_resource("
 ~ start
-set StateForTests.some_property = 10 * 2-1.5 / 2 + (5 * 5)
+$> StateForTests.some_property = 10 * 2-1.5 / 2 + (5 * 5)
 Nathan: Done.")
 
 	StateForTests.some_property = 0
@@ -347,7 +365,7 @@ func test_can_use_extra_state() -> void:
 	var resource = create_resource("
 ~ start
 Nathan: {{extra_value}}
-set extra_value = 10")
+$> extra_value = 10")
 
 	var extra_state = { extra_value = 5 }
 
@@ -391,11 +409,11 @@ Nathan: {{Vector2.UP}} == {{Vector2(0, -1)}}")
 func test_can_use_lua_dictionary_syntax() -> void:
 	var resource = create_resource("
 ~ start
-set StateForTests.dictionary = { key = \"value\" }
+$> StateForTests.dictionary = { key = \"value\" }
 Nathan: Stop!
-set StateForTests.dictionary = { \"key2\": \"value2\" }
+$> StateForTests.dictionary = { \"key2\": \"value2\" }
 Nathan: Stop!
-set StateForTests.dictionary.key3 = \"value3\"")
+$> StateForTests.dictionary.key3 = \"value3\"")
 
 	assert(StateForTests.dictionary.is_empty(), "Dictionary is empty")
 
@@ -425,7 +443,7 @@ func test_can_warn_about_conflicts() -> void:
 	var resource = create_resource("
 using StateForTests
 ~ start
-set some_property = 1
+$> some_property = 1
 Value is {{some_property}}")
 
 	ProjectSettings.set_setting("dialogue_manager/runtime/warn_about_method_property_or_signal_name_conflicts", true)
@@ -437,7 +455,7 @@ Value is {{some_property}}")
 func test_can_use_self() -> void:
 	var resource = create_resource("
 ~ start
-set what_is_self = self
+$> what_is_self = self
 Nathan: That should not be null.
 => END")
 
@@ -492,7 +510,7 @@ using CSharpState
 ~ start
 if SomeValue < SOME_CONSTANT:
 	Here first.
-	set SomeValue = SOME_CONSTANT + 1
+	$> SomeValue = SOME_CONSTANT + 1
 	=> start
 else:
 	Then here.
@@ -510,18 +528,18 @@ func test_csharp_mutation() -> void:
 using CSharpState
 
 ~ start
-#Nathan: Hello.
-#set SomeValue = GetAsyncValue()
-#Nathan: Value is {{SomeValue}}.
-do LongMutation()
+Nathan: Hello.
+$> SomeValue = GetAsyncValue()
+Nathan: Value is {{SomeValue}}.
+$> LongMutation()
 Nathan: Done!
 => END")
 
 	var line = await resource.get_next_dialogue_line("start")
-	#assert(line.text == "Hello.", "Should be first line.")
-#
-	#line = await resource.get_next_dialogue_line(line.next_id)
-	#assert(line.text == "Value is 100.", "Should have new value.")
-#
-	#line = await resource.get_next_dialogue_line(line.next_id)
+	assert(line.text == "Hello.", "Should be first line.")
+
+	line = await resource.get_next_dialogue_line(line.next_id)
+	assert(line.text == "Value is 100.", "Should have new value.")
+
+	line = await resource.get_next_dialogue_line(line.next_id)
 	assert(line.text == "Done!", "Should finish.")
