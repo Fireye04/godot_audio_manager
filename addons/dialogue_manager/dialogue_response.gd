@@ -49,19 +49,14 @@ func _init(data: Dictionary = {}) -> void:
 		character_replacements = data.character_replacements
 		text = data.text
 		text_replacements = data.text_replacements
-		tags = _special_tags(data.tags)
+		tags = data.tags
 		translation_key = data.translation_key
 		condition_as_text = data.condition_as_text
+		hidden = data.hidden;
 
 
 func _to_string() -> String:
 	return "<DialogueResponse text=\"%s\">" % text
-
-func _special_tags(arr: PackedStringArray)->PackedStringArray:
-	if arr.has("hidden"):
-		arr.remove_at(arr.find("hidden"))
-		hidden = true
-	return arr
 
 func get_tag_value(tag_name: String) -> String:
 	var wrapped := "%s=" % tag_name

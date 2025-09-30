@@ -634,7 +634,8 @@ func create_response(data: Dictionary, extra_game_states: Array) -> DialogueResp
 		text_replacements = data.get(&"text_replacements", [] as Array[Dictionary]),
 		tags = data.get(&"tags", []),
 		translation_key = data.get(&"translation_key", data.text),
-		audio = data.get(&"audio", "")
+		audio = data.get(&"audio", ""),
+		hidden = data.get(&"hidden", false)
 	})
 
 
@@ -663,6 +664,9 @@ func _get_game_states(extra_game_states: Array) -> Array:
 		if state != null and not unique_states.has(state):
 			unique_states.append(state)
 	return unique_states
+
+func _check_response_hidden(data: Dictionary, extra_game_states: Array) -> bool:
+	return bool(await _resolve(data.condition.expression.hidden.duplicate(true), extra_game_states))
 
 
 # Check if a condition is met
@@ -758,6 +762,7 @@ func _get_responses(ids: Array, resource: DialogueResource, id_trail: String, ex
 	var responses: Array[DialogueResponse] = []
 	for id in ids:
 		var data: Dictionary = resource.lines.get(id).duplicate(true)
+		data.hidden = await _check_response_hidden(data, extra_game_states)
 		data.is_allowed = await _check_condition(data, extra_game_states)
 		var response: DialogueResponse = await create_response(data, extra_game_states)
 		response.next_id += id_trail

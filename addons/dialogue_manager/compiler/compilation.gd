@@ -581,6 +581,19 @@ func parse_response_line(tree_line: DMTreeLine, line: DMCompiledLine, siblings: 
 
 			tree_line.text = regex.WRAPPED_CONDITION_REGEX.sub(tree_line.text, "").strip_edges()
 
+	# Handle force hide conditional responses and remove them from the prompt text.
+	if " [hide if " in tree_line.text:
+		var condition = extract_condition(tree_line.text.replace(" [hide if ", " [if "), true, tree_line.indent)
+		if condition.has("error"):
+			result = add_error(tree_line.line_number, condition.index, condition.error)
+		else:
+			line.expression.hidden = condition
+			# Extract just the raw condition text
+			var found: RegExMatch = regex.WRAPPED_CONDITION_REGEX.search(tree_line.text.replace(" [hide if ", " [if "))
+			line.expression_text.hidden = found.strings[found.names.expression]
+
+			tree_line.text = regex.WRAPPED_CONDITION_REGEX.sub(tree_line.text, "").strip_edges()
+
 	# Find the original response in this group of responses.
 	var original_response: DMTreeLine = tree_line
 	for i in range(sibling_index - 1, -1, -1):
